@@ -2,6 +2,7 @@ package com.prolificinteractive.materialcalendarview;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
@@ -37,12 +38,15 @@ import com.prolificinteractive.materialcalendarview.format.WeekDayFormatter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * <p>
@@ -174,13 +178,18 @@ public class MaterialCalendarView extends ViewGroup {
     private final TitleChanger titleChanger;
 
     private final TextView title;
+    private final TextView titlePrevious;
+    private final TextView titleNext;
     private final DirectionButton buttonPast;
     private final DirectionButton buttonFuture;
     private final CalendarPager pager;
     private CalendarPagerAdapter<?> adapter;
     private CalendarDay currentMonth;
     private LinearLayout topbar;
+    private LinearLayout.LayoutParams titlePreviousLayoutParams;
+    private LinearLayout.LayoutParams titleNextLayoutParams;
     private CalendarMode calendarMode;
+    private Calendar previousCalendar;
     /**
      * Used for the dynamic calendar height.
      */
@@ -261,14 +270,19 @@ public class MaterialCalendarView extends ViewGroup {
         buttonPast = new DirectionButton(getContext());
         buttonPast.setContentDescription(getContext().getString(R.string.previous));
         title = new AppCompatTextView(getContext());
+        titlePrevious = new AppCompatTextView(getContext());
+        titleNext = new AppCompatTextView(getContext());
         buttonFuture = new DirectionButton(getContext());
         buttonFuture.setContentDescription(getContext().getString(R.string.next));
         pager = new CalendarPager(getContext());
 
+        previousCalendar = Calendar.getInstance();
+        previousCalendar.add(Calendar.MONTH, -1);
+
         buttonPast.setOnClickListener(onClickListener);
         buttonFuture.setOnClickListener(onClickListener);
 
-        titleChanger = new TitleChanger(title);
+        titleChanger = new TitleChanger(title, titlePrevious, titleNext);
         titleChanger.setTitleFormatter(DEFAULT_TITLE_FORMATTER);
 
         pager.setOnPageChangeListener(pageChangeListener);
@@ -372,6 +386,14 @@ public class MaterialCalendarView extends ViewGroup {
                     R.styleable.MaterialCalendarView_mcv_dateTextAppearance,
                     R.style.TextAppearance_MaterialCalendarWidget_Date
             ));
+            setPreviousHeaderTextAppearance(a.getResourceId(
+                    R.styleable.MaterialCalendarView_mcv_previousHeaderTextAppearance,
+                    R.style.TextAppearance_MaterialCalendarWidget_MonthPrevNext
+            ));
+            setNextHeaderTextAppearance(a.getResourceId(
+                    R.styleable.MaterialCalendarView_mcv_nextHeaderTextAppearance,
+                    R.style.TextAppearance_MaterialCalendarWidget_MonthPrevNext
+            ));
             //noinspection ResourceType
             setShowOtherDates(a.getInteger(
                     R.styleable.MaterialCalendarView_mcv_showOtherDates,
@@ -414,15 +436,25 @@ public class MaterialCalendarView extends ViewGroup {
         addView(topbar, new LayoutParams(1));
 
         buttonPast.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        topbar.addView(buttonPast, new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1));
+        topbar.addView(buttonPast, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+
+        titlePrevious.setGravity(Gravity.CENTER_VERTICAL);
+        titlePreviousLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+        titlePreviousLayoutParams.setMargins(convertPixelToDP(getContext(), 16), 0, 0, 0);
+        topbar.addView(titlePrevious, titlePreviousLayoutParams);
 
         title.setGravity(Gravity.CENTER);
         topbar.addView(title, new LinearLayout.LayoutParams(
                 0, LayoutParams.MATCH_PARENT, DEFAULT_DAYS_IN_WEEK - 2
         ));
 
+        titleNext.setGravity(Gravity.CENTER_VERTICAL);
+        titleNextLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
+        titleNextLayoutParams.setMargins(0, 0, convertPixelToDP(getContext(), 16), 0);
+        topbar.addView(titleNext, titleNextLayoutParams);
+
         buttonFuture.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        topbar.addView(buttonFuture, new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, 1));
+        topbar.addView(buttonFuture, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
 
         pager.setId(R.id.mcv_pager);
         pager.setOffscreenPageLimit(1);
@@ -433,7 +465,18 @@ public class MaterialCalendarView extends ViewGroup {
     private void updateUi() {
         titleChanger.change(currentMonth);
         buttonPast.setEnabled(canGoBack());
+        titlePrevious.setEnabled(canGoBack());
         buttonFuture.setEnabled(canGoForward());
+        titleNext.setEnabled(canGoForward());
+    }
+
+    public int convertPixelToDP(Context context, int dimenId) {
+        Resources resources = context.getResources();
+        return (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                dimenId,
+                resources.getDisplayMetrics()
+        );
     }
 
     /**
@@ -759,6 +802,14 @@ public class MaterialCalendarView extends ViewGroup {
      */
     public void setHeaderTextAppearance(int resourceId) {
         title.setTextAppearance(getContext(), resourceId);
+    }
+
+    public void setPreviousHeaderTextAppearance(int resourceId) {
+        titlePrevious.setTextAppearance(getContext(), resourceId);
+    }
+
+    public void setNextHeaderTextAppearance(int resourceId) {
+        titleNext.setTextAppearance(getContext(), resourceId);
     }
 
     /**

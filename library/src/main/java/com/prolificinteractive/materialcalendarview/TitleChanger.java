@@ -11,12 +11,17 @@ import android.widget.TextView;
 
 import com.prolificinteractive.materialcalendarview.format.TitleFormatter;
 
+import java.text.DateFormatSymbols;
+import java.util.Locale;
+
 class TitleChanger {
 
     public static final int DEFAULT_ANIMATION_DELAY = 400;
     public static final int DEFAULT_Y_TRANSLATION_DP = 20;
 
     private final TextView title;
+    private final TextView titlePrevious;
+    private final TextView titleNext;
     private TitleFormatter titleFormatter;
 
     private final int animDelay;
@@ -29,8 +34,10 @@ class TitleChanger {
     private long lastAnimTime = 0;
     private CalendarDay previousMonth = null;
 
-    public TitleChanger(TextView title) {
+    public TitleChanger(TextView title, TextView titlePrevious, TextView titleNext) {
         this.title = title;
+        this.titlePrevious = titlePrevious;
+        this.titleNext = titleNext;
 
         Resources res = title.getResources();
 
@@ -70,6 +77,12 @@ class TitleChanger {
 
         title.setAlpha(1);
         lastAnimTime = now;
+
+        DateFormatSymbols dfs = new DateFormatSymbols(Locale.getDefault());
+        String[] months = dfs.getShortMonths();
+
+        titlePrevious.setText(months[minusMonth(currentMonth.getMonth(), 1)]);
+        titleNext.setText(months[plusMonth(currentMonth.getMonth(), 1)]);
 
         final CharSequence newTitle = titleFormatter.format(currentMonth);
 
@@ -120,6 +133,22 @@ class TitleChanger {
         }
 
         previousMonth = currentMonth;
+    }
+
+    private int minusMonth(int currentMonth, int amount) {
+        int calculate = currentMonth - amount;
+        if(calculate < 0) {
+            return 11;
+        }
+        return calculate;
+    }
+
+    private int plusMonth(int curentMonth, int amount) {
+        int calculate = curentMonth + amount;
+        if(calculate > 11) {
+            return 0;
+        }
+        return calculate;
     }
 
     private void doTranslation(final TextView title, final int translate) {
