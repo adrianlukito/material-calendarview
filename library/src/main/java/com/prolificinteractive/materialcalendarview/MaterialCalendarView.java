@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Locale;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.temporal.WeekFields;
 
 /**
@@ -177,6 +178,8 @@ public class MaterialCalendarView extends ViewGroup {
   private final TitleChanger titleChanger;
 
   private final TextView title;
+  private final TextView titlePast;
+  private final TextView titleFuture;
   private final ImageView buttonPast;
   private final ImageView buttonFuture;
   private final CalendarPager pager;
@@ -265,7 +268,9 @@ public class MaterialCalendarView extends ViewGroup {
 
     topbar = content.findViewById(R.id.header);
     buttonPast = content.findViewById(R.id.previous);
+    titlePast = content.findViewById(R.id.previous_month_name);
     title = content.findViewById(R.id.month_name);
+    titleFuture = content.findViewById(R.id.next_month_name);
     buttonFuture = content.findViewById(R.id.next);
     pager = new CalendarPager(getContext());
 
@@ -386,6 +391,14 @@ public class MaterialCalendarView extends ViewGroup {
           R.styleable.MaterialCalendarView_mcv_dateTextAppearance,
           R.style.TextAppearance_MaterialCalendarWidget_Date
       ));
+      setPreviousHeaderTextAppearance(a.getResourceId(
+              R.styleable.MaterialCalendarView_mcv_previousHeaderTextAppearance,
+              R.style.TextAppearance_MaterialCalendarWidget_MonthPrevNext
+      ));
+      setNextHeaderTextAppearance(a.getResourceId(
+              R.styleable.MaterialCalendarView_mcv_nextHeaderTextAppearance,
+              R.style.TextAppearance_MaterialCalendarWidget_MonthPrevNext
+      ));
       //noinspection ResourceType
       setShowOtherDates(a.getInteger(
           R.styleable.MaterialCalendarView_mcv_showOtherDates,
@@ -431,8 +444,12 @@ public class MaterialCalendarView extends ViewGroup {
 
   private void updateUi() {
     titleChanger.change(currentMonth);
+    titlePast.setText(DateTimeFormatter.ofPattern("MMM").format(currentMonth.getDate().minusMonths(1)));
+    titleFuture.setText(DateTimeFormatter.ofPattern("MMM").format(currentMonth.getDate().plusMonths(1)));
     enableView(buttonPast, canGoBack());
+    enableView(titlePast, canGoBack());
     enableView(buttonFuture, canGoForward());
+    enableView(titleFuture, canGoForward());
   }
 
   /**
@@ -748,6 +765,14 @@ public class MaterialCalendarView extends ViewGroup {
    */
   public void setWeekDayTextAppearance(int resourceId) {
     adapter.setWeekDayTextAppearance(resourceId);
+  }
+
+  public void setPreviousHeaderTextAppearance(int resourceId) {
+    titlePast.setTextAppearance(getContext(), resourceId);
+  }
+
+  public void setNextHeaderTextAppearance(int resourceId) {
+    titleFuture.setTextAppearance(getContext(), resourceId);
   }
 
   /**

@@ -21,6 +21,16 @@
       />
 
   <TextView
+      android:id="@+id/previous_month_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:gravity="center"
+      tools:text="Jul"
+      style="?android:attr/textAppearanceSmall"
+      />
+
+  <TextView
       android:id="@+id/month_name"
       android:layout_width="0dp"
       android:layout_height="wrap_content"
@@ -29,6 +39,16 @@
       android:gravity="center"
       tools:text="August 2018"
       style="?android:attr/textAppearanceMedium"
+      />
+
+  <TextView
+      android:id="@+id/next_month_name"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:gravity="center"
+      tools:text="Sep"
+      style="?android:attr/textAppearanceSmall"
       />
 
   <ImageButton
