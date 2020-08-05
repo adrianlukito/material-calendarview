@@ -436,7 +436,7 @@ public class MaterialCalendarView extends ViewGroup {
         addView(topbar, new LayoutParams(1));
 
         buttonPast.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        topbar.addView(buttonPast, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+        topbar.addView(buttonPast, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, 1));
 
         titlePrevious.setGravity(Gravity.CENTER_VERTICAL);
         titlePreviousLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT);
@@ -454,7 +454,7 @@ public class MaterialCalendarView extends ViewGroup {
         topbar.addView(titleNext, titleNextLayoutParams);
 
         buttonFuture.setScaleType(ImageView.ScaleType.CENTER_INSIDE);
-        topbar.addView(buttonFuture, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT));
+        topbar.addView(buttonFuture, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, 1));
 
         pager.setId(R.id.mcv_pager);
         pager.setOffscreenPageLimit(1);
